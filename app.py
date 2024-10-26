@@ -4,31 +4,35 @@ from flask import Flask, render_template
 import pandas as pd
 from query_llms import query_gpt, query_grok
 from datetime import datetime
+import gspread
+from google.oauth2.service_account import Credentials
 
 app = Flask(__name__)
+
+
+scope = ["https://www.googleapis.com/auth/spreadsheets", "https://www.googleapis.com/auth/drive"]
+
+# Authenticate with the credentials.json file
+creds = Credentials.from_service_account_file("beyond42-6ce3fce249f7.json", scopes=scope)
+
+def get_responses():
+    client = gspread.authorize(creds)
+    sheet = client.open("Beyond42 (Responses)").sheet1  # 'sheet1' refers to the first sheet
+
+    data = sheet.get_all_records()
+    return pd.DataFrame(data)
+
+def get_prompt(df, question):
+    prompt = f"""You are an assistant whose task is to judge which answer to a given question is the best:
+        The question is "{question}":"""
+    for i, answer in enumerate(df['question']):
+        prompt += f"Answer {i}:" + answer + "\n"
+    return prompt
 
 @app.route('/test')
 def test():
     # Create a fake DataFrame
-    data = {
-        'Timestamp': [
-            datetime(2024, 10, 26, 14, 54, 14),
-            datetime(2024, 10, 26, 15, 1, 56)
-        ],
-        'What is the meaning of life?': [
-            '42',
-            'To find connection'
-        ],
-        'What happens after death?': [
-            'Nothing',
-            'We wake up in a bio vat'
-        ],
-        'What does fully embracing life mean?': [
-            'Maximizing the time in flow state',
-            'You maximize your time doing the things you love'
-        ]
-    }
-    df = pd.DataFrame(data)
+    df = get_responses()
 
     # Define questions (columns except 'Timestamp')
     questions = [col for col in df.columns if col != 'Timestamp']
