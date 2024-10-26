@@ -25,8 +25,14 @@ def query_gpt(prompt, model="gpt-4", max_tokens=150, temperature=0.7):
         return completion.choices[0].message.content
     except:
         return ""
+<<<<<<< Updated upstream
+=======
 
-def query_grok(prompt, model_name="llama-3.1-70b-versatile", temperature=0.0):
+
+# def query_grok(prompt, model_name="llama-3.1-70b-versatile", temperature=0.0):
+def query_grok(prompt, model_name="llama-3.1-8b-instant", temperature=0.0):
+>>>>>>> Stashed changes
+
     grok_api_key = os.getenv('GROK_API_KEY')
     try:
         llm = ChatGroq(
