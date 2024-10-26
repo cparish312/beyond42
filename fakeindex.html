@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LLM Responses</title>
+    <style>
+        /* Reset some default styles */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #ffffff;
+            padding: 20px;
+            color: #000000;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        /* Button Styles */
+        .button-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .toggle-button {
+            flex: 1 1 calc(20% - 10px);
+            /* Five buttons per row */
+            padding: 10px 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background-color: #ffffff;
+            cursor: pointer;
+            text-align: center;
+            font-weight: bold;
+            transition: background-color 0.2s, box-shadow 0.2s;
+            user-select: none;
+        }
+
+        .toggle-button:hover {
+            background-color: #f9f9f9;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .toggle-button.active {
+            border-bottom: 2px solid #000000;
+        }
+
+        /* Card Styles */
+        .card {
+            background-color: #ffffff;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            overflow: hidden;
+            transition: max-height 0.3s ease, opacity 0.3s ease;
+            max-height: 0;
+            opacity: 0;
+            visibility: hidden;
+        }
+
+        .card.show {
+            max-height: 1000px;
+            /* Arbitrary high value to accommodate content */
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .card-header {
+            padding: 15px 20px;
+            font-size: 1.2em;
+            font-weight: bold;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .card-body {
+            padding: 20px;
+        }
+
+        .llm-group {
+            margin-bottom: 15px;
+        }
+
+        .llm-group:last-child {
+            margin-bottom: 0;
+        }
+
+        .llm-title {
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+
+        .response {
+            padding: 10px 15px;
+            margin-bottom: 8px;
+            border-left: 2px solid #000000;
+            background-color: transparent;
+        }
+
+        .response:last-child {
+            margin-bottom: 0;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 800px) {
+            .toggle-button {
+                flex: 1 1 calc(50% - 10px);
+                /* Two buttons per row on smaller screens */
+            }
+        }
+
+        @media (max-width: 500px) {
+            .toggle-button {
+                flex: 1 1 100%;
+                /* One button per row on very small screens */
+            }
+        }
+
+        /* Focus Styles for Accessibility */
+        .toggle-button:focus {
+            outline: 2px solid #000000;
+            outline-offset: 2px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <!-- Button Container -->
+        <div class="button-container" id="button-container">
+            <!-- Buttons will be dynamically injected here -->
+        </div>
+
+        <!-- Cards Container -->
+        <div id="response-container">
+            <!-- Dynamic content will be injected here -->
+        </div>
+    </div>
+
+    <script>
+        // Data Structure: Array of Questions with Responses from different LLMs
+        const data = [
+            {
+                id: 1,
+                question: "What is the meaning of life?",
+                responses: {
+                    gpt_response: "42",
+                    grok_response: "To seek happiness and fulfillment"
+                }
+            },
+            {
+                id: 2,
+                question: "What happens after death?",
+                responses: {
+                    gpt_response: "Nothing",
+                    grok_response: "The soul transcends to another realm"
+                }
+            },
+            {
+                id: 3,
+                question: "What does fully embracing life mean?",
+                responses: {
+                    gpt_response: "Maximizing the time in flow state",
+                    grok_response: "You maximize your time doing the things you love"
+                }
+            },
+            {
+                id: 4,
+                question: "How can we achieve world peace?",
+                responses: {
+                    gpt_response: "Implementing fair governance",
+                    grok_response: "Fostering global cooperation"
+                }
+            },
+            {
+                id: 5,
+                question: "What is the future of artificial intelligence?",
+                responses: {
+                    gpt_response: "Integration into everyday life",
+                    grok_response: "Ensuring ethical guidelines are followed"
+                }
+            }
+        ];
+
+        // Function to Create a Button for Each Question
+        function createButton(questionObj) {
+            const button = document.createElement('div');
+            button.className = 'toggle-button';
+            button.textContent = `Question ${questionObj.id}`;
+            button.setAttribute('data-id', questionObj.id);
+            button.setAttribute('tabindex', '0'); // Make it focusable
+            button.setAttribute('role', 'button');
+            button.setAttribute('aria-expanded', 'false');
+            button.setAttribute('aria-controls', `card-${questionObj.id}`);
+            return button;
+        }
+
+        // Function to Create a Card for Each Question
+        function createCard(questionObj) {
+            // Create Card Element
+            const card = document.createElement('div');
+            card.className = 'card';
+            card.id = `card-${questionObj.id}`;
+            card.setAttribute('aria-labelledby', `button-${questionObj.id}`);
+
+            // Create Card Header
+            const cardHeader = document.createElement('div');
+            cardHeader.className = 'card-header';
+            cardHeader.textContent = questionObj.question;
+            card.appendChild(cardHeader);
+
+            // Create Card Body
+            const cardBody = document.createElement('div');
+            cardBody.className = 'card-body';
+
+            // Iterate over Each LLM Group
+            for (const [llm, responseText] of Object.entries(questionObj.responses)) {
+                const llmGroup = document.createElement('div');
+                llmGroup.className = 'llm-group';
+
+                // LLM Title
+                const llmTitle = document.createElement('div');
+                llmTitle.className = 'llm-title';
+                llmTitle.textContent = `${llm.replace('_', ' ').toUpperCase()}:`;
+                llmGroup.appendChild(llmTitle);
+
+                // Response
+                const response = document.createElement('div');
+                response.className = 'response';
+                response.textContent = responseText;
+                llmGroup.appendChild(response);
+
+                cardBody.appendChild(llmGroup);
+            }
+
+            card.appendChild(cardBody);
+            return card;
+        }
+
+        // Function to Render All Buttons
+        function renderButtons(dataArray) {
+            const buttonContainer = document.getElementById('button-container');
+            dataArray.forEach(questionObj => {
+                const button = createButton(questionObj);
+                button.id = `button-${questionObj.id}`; // Assign unique ID for accessibility
+                buttonContainer.appendChild(button);
+            });
+        }
+
+        // Function to Render All Cards
+        function renderCards(dataArray) {
+            const container = document.getElementById('response-container');
+            dataArray.forEach(questionObj => {
+                const card = createCard(questionObj);
+                container.appendChild(card);
+            });
+        }
+
+        // Function to Handle Button Clicks
+        function handleButtonClicks() {
+            const buttons = document.querySelectorAll('.toggle-button');
+            buttons.forEach(button => {
+                button.addEventListener('click', () => {
+                    const id = button.getAttribute('data-id');
+                    const card = document.getElementById(`card-${id}`);
+                    const isActive = button.classList.contains('active');
+
+                    // Close all cards and deactivate all buttons
+                    document.querySelectorAll('.card').forEach(c => c.classList.remove('show'));
+                    buttons.forEach(btn => {
+                        btn.classList.remove('active');
+                        btn.setAttribute('aria-expanded', 'false');
+                    });
+
+                    // If the clicked button was not active, open its card and activate the button
+                    if (!isActive) {
+                        card.classList.add('show');
+                        button.classList.add('active');
+                        button.setAttribute('aria-expanded', 'true');
+                    }
+                });
+
+                // Enable keyboard activation
+                button.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        button.click();
+                    }
+                });
+            });
+        }
+
+        // Initialize the UI
+        document.addEventListener('DOMContentLoaded', () => {
+            renderButtons(data);
+            renderCards(data);
+            handleButtonClicks();
+        });
+    </script>
+</body>
+
+</html>
