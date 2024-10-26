@@ -1,4 +1,7 @@
+Flask
 openai
 requests
 python-dotenv
 langchain-groq
+Flask-Limiter
+pandas
