@@ -1,7 +1,7 @@
 # query_llms.py
 
 import os
-import openai
+from openai import OpenAI
 from dotenv import load_dotenv
 from langchain_groq import ChatGroq  # Ensure this is correctly installed
 
@@ -9,20 +9,22 @@ from langchain_groq import ChatGroq  # Ensure this is correctly installed
 load_dotenv()
 
 def query_gpt(prompt, model="gpt-4", max_tokens=150, temperature=0.7):
-    openai.api_key = os.getenv('OPENAI_API_KEY')
+    client = OpenAI()
+
     try:
-        response = openai.ChatCompletion.create(
+        completion = client.chat.completions.create(
             model=model,
             messages=[
                 {"role": "system", "content": "You are a helpful assistant."},
-                {"role": "user", "content": prompt}
-            ],
-            max_tokens=max_tokens,
-            temperature=temperature,
+                {
+                    "role": "user",
+                    "content": prompt
+                }
+            ]
         )
-        return response.choices[0].message.content.strip()
-    except Exception as e:
-        return f"GPT Error: {str(e)}"
+        return completion.choices[0].message.content
+    except:
+        return ""
 
 def query_grok(prompt, model_name="llama-3.1-70b-versatile", temperature=0.0):
     grok_api_key = os.getenv('GROK_API_KEY')
