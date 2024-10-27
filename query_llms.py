@@ -35,7 +35,9 @@ def query_gpt(prompt, model="gpt-4", max_tokens=150, temperature=0.7):
     except:
         return "Failed"
 
-def query_grok(prompt, model="llama-3.1-70b-versatile", temperature=0.0):
+# def query_grok(prompt, model="llama-3.1-70b-versatile", temperature=0.0):
+def query_grok(prompt, model_name="llama-3.1-8b-instant", temperature=0.0):
+
     grok_api_key = os.getenv('GROK_API_KEY')
     try:
         llm = ChatGroq(

@@ -10,6 +10,25 @@ from google.oauth2.service_account import Credentials
 app = Flask(__name__)
 
 
+scope = ["https://www.googleapis.com/auth/spreadsheets", "https://www.googleapis.com/auth/drive"]
+
+# Authenticate with the credentials.json file
+creds = Credentials.from_service_account_file("beyond42-6ce3fce249f7.json", scopes=scope)
+
+def get_responses():
+    client = gspread.authorize(creds)
+    sheet = client.open("Beyond42 (Responses)").sheet1  # 'sheet1' refers to the first sheet
+
+    data = sheet.get_all_records()
+    return pd.DataFrame(data)
+
+def get_prompt(df, question):
+    prompt = f"""You are an assistant whose task is to judge which answer to a given question is the best:
+        The question is "{question}":"""
+    for i, answer in enumerate(df['question']):
+        prompt += f"Answer {i}:" + answer + "\n"
+    return prompt
+
 @app.route('/test')
 def test():
     # Create a fake DataFrame
