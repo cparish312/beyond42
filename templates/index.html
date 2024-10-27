@@ -447,7 +447,7 @@
             responseContainer.appendChild(loader);
 
             // Fetch the JSON file
-            fetch(`answers/${fileName}`)
+            fetch(`../answers/${fileName}`)
                 .then(response => {
                     if (!response.ok) {
                         throw new Error(`Failed to fetch ${fileName}: ${response.statusText}`);
