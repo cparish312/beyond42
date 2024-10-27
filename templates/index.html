@@ -1,59 +1,503 @@
-<!-- templates/index.html -->
-
 <!DOCTYPE html>
 <html lang="en">
 
 <head>
     <meta charset="UTF-8">
-    <title>LLM Query Results</title>
-    <!-- Bootstrap CSS for styling -->
-    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet"
-        integrity="sha384-MCw98/SFnGE8fJT3GXwE4fOQcfPW4v6wH+LFp4MXmHl7ka68Y3gXrh/h1y6xO2g1" crossorigin="anonymous">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>LLM Responses</title>
+    <!-- Navbar -->
+    <nav>
+        <img src="img.png" alt="Descriptive Alt Text">
+        <h1>Beyond 42 ...</h1>
+    </nav>
+
     <style>
+        /* Reset some default styles */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
         body {
-            padding-top: 50px;
-            background-color: #f8f9fa;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #ffffff;
+            padding: 20px;
+            color: #000000;
         }
 
         .container {
-            max-width: 95%;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        /* Navbar Styles */
+        nav {
+            display: flex;
+            align-items: center;
+            height: 10vh;
+            /* Takes up 1/10 of the viewport height */
+
+            padding: 10px 20px;
+            /* background: linear-gradient(90deg, #d6e6f2, #b3d3e8); */
+            /* Light blue gradient */
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+
+        /* Image taking 20% of nav width */
+        nav img {
+            flex: 2;
+            max-width: 10%;
+            /* Ensures it scales within its flex space */
+            height:
+        }
+
+        /* Title centered at around 40% of nav width */
+        nav h1 {
+            flex: 4;
+            margin: 0;
+            font-size: 1.5em;
+            text-align: left;
+            color: #003366;
+            /* Darker blue text for contrast */
+        }
+
+
+        /* Button Container Styles */
+        .button-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .question-button {
+            flex: 1 1 calc(33.333% - 10px);
+            /* Three buttons per row */
+            padding: 10px 15px;
+            border: none;
+            border-radius: 5px;
+            background: linear-gradient(90deg, #d6e6f2, #b3d3e8);
+            /* Same light blue gradient */
+            color: #003366;
+            /* Darker blue text for contrast */
+            font-weight: bold;
+            cursor: pointer;
+            text-align: center;
+            transition: background-color 0.2s, box-shadow 0.2s;
+            user-select: none;
+        }
+
+        .question-button:hover {
+            background: linear-gradient(90deg, #b3d3e8, #d6e6f2);
+            /* Reverse gradient on hover */
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .question-button:focus {
+            outline: 2px solid #4A148C;
+            /* Darker purple */
+            outline-offset: 2px;
+        }
+
+        /* Active Button Style */
+        .question-button.active {
+            background: linear-gradient(90deg, #a0c3d9, #c5dff1);
+            /* Slightly darker gradient for active state */
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+
+
+        /* Card Header - Slightly Darker for Contrast */
+        /* Card Styles - Neutral Background */
+        .card {
+            background-color: #ffffff;
+            /* Plain white background */
+            border: 1px solid #ddd;
+            /* Light gray border */
+            border-radius: 5px;
+            margin-bottom: 20px;
+            overflow: hidden;
+            transition: max-height 0.3s ease, opacity 0.3s ease;
+            max-height: 1000px;
+            /* Always show cards */
+            opacity: 1;
+            visibility: visible;
+        }
+
+        /* Card Header - Slightly Darker for Contrast */
+        .card-header {
+            padding: 15px 20px;
+            font-size: 1.2em;
+            font-weight: bold;
+            border-bottom: 1px solid #ddd;
+            /* Light gray border for header */
+            background-color: #f5f5f5;
+            /* Light gray for subtle contrast */
+            color: #333333;
+            /* Dark gray text for readability */
+        }
+
+        .card-body {
+            padding: 20px;
+        }
+
+        .llm-group {
+            margin-bottom: 15px;
+        }
+
+        .llm-group:last-child {
+            margin-bottom: 0;
+        }
+
+        .llm-title {
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+
+        .response {
+            padding: 10px 15px;
+            margin-bottom: 8px;
+            border-left: 2px solid #000000;
+            background-color: #f9f9f9;
+            border-radius: 3px;
+        }
+
+        .response:last-child {
+            margin-bottom: 0;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 800px) {
+            .question-button {
+                flex: 1 1 calc(50% - 10px);
+                /* Two buttons per row on smaller screens */
+            }
+
+            .card-header {
+                font-size: 1em;
+            }
+        }
+
+        @media (max-width: 500px) {
+            .question-button {
+                flex: 1 1 100%;
+                /* One button per row on very small screens */
+            }
+
+            .card-header {
+                font-size: 0.9em;
+            }
+        }
+
+        @media (max-width: 400px) {
+            .card-header {
+                font-size: 0.8em;
+            }
+        }
+
+        /* Loader Styles */
+        .loader {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #007BFF;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            animation: spin 1s linear infinite;
+            display: inline-block;
+            vertical-align: middle;
+            margin-left: 10px;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* Error Message Styles */
+        .error-message {
+            color: red;
+            margin-bottom: 20px;
         }
     </style>
 </head>
 
 <body>
     <div class="container">
-        <h1 class="mb-4 text-center">LLM Query Results</h1>
-        <table class="table table-bordered table-hover">
-            <thead class="thead-dark">
-                <tr>
-                    <th>Question</th>
-                    <th>OpenAI GPT-4 Response</th>
-                    <th>Grok Response</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for response in responses %}
-                <tr>
-                    <td>{{ response.prompt }}</td>
-                    <td>{{ response.OpenAI_GPT_Response }}</td>
-                    <td>{{ response.Grok_Response }}</td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+        <!-- Button Container -->
+        <div class="button-container" id="button-container">
+            <!-- Buttons are dynamically injected here -->
+        </div>
+
+        <!-- Loader for Initial Button Fetching -->
+        <div id="initial-loader" class="loader" style="display: none;"></div>
+
+        <!-- Error Message for Initial Button Fetching -->
+        <div id="initial-error" class="error-message"></div>
+
+        <!-- Cards Container -->
+        <div id="response-container">
+            <!-- Dynamic content will be injected here -->
+        </div>
     </div>
 
-    <!-- Bootstrap JS and dependencies -->
-    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"
-        integrity="sha384-DfXdNVxnVvklyM5V6Z7nULqd/+ywg4bUuLllLXblQmQoC9lOyY3u6SjtuB/hh12i"
-        crossorigin="anonymous"></script>
-    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"
-        integrity="sha384-9/reFTGAW83EW2RDuLMCLfN7MTQeX15ZtGmFYvkTka2HjClfv4YAX1ZmM+2Y7rCR"
-        crossorigin="anonymous"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"
-        integrity="sha384-B4gt1jrGC7Jh4AgCRL3VtNvbqnzXT34/VJxWVPBJQm8JOW/k8Zx3wJoIrP+CQln9"
-        crossorigin="anonymous"></script>
+    <script>
+        // List of JSON filenames in the 'answers' folder
+        const answerFiles = [
+            '1.json',
+            '2.json',
+            '3.json',
+            '4.json',
+            '5.json',
+            '6.json',
+            // Add more filenames as needed
+        ];
+
+        /**
+         * Function to Create a Question Button
+         * @param {String} question - The question text
+         * @param {String} fileName - The associated JSON file name
+         * @returns {HTMLElement} - The created button element
+         */
+        function createQuestionButton(question, fileName) {
+            const button = document.createElement('button');
+            button.className = 'question-button';
+            button.textContent = question;
+            button.setAttribute('data-file', fileName);
+            button.setAttribute('aria-expanded', 'false');
+            button.setAttribute('aria-controls', `response-${fileName}`);
+            button.id = `button-${fileName}`;
+            return button;
+        }
+
+        /**
+         * Function to Create a Response Card
+         * @param {String} question - The question text
+         * @param {Object} answers - The answers object from the JSON file
+         * @param {String} fileName - The name of the JSON file
+         * @returns {HTMLElement} - The created card element
+         */
+        function createResponseCard(question, answers, fileName) {
+            // Create Card Element
+            const card = document.createElement('div');
+            card.className = 'card';
+            card.id = `response-${fileName}`;
+            card.setAttribute('aria-labelledby', `button-${fileName}`);
+
+            // Card Header: Display the Question
+            const cardHeader = document.createElement('div');
+            cardHeader.className = 'card-header';
+            cardHeader.textContent = question;
+            card.appendChild(cardHeader);
+
+            // Create Card Body
+            const cardBody = document.createElement('div');
+            cardBody.className = 'card-body';
+
+            // Iterate over Each LLM Response
+            for (const [llm, responseText] of Object.entries(answers)) {
+                const llmGroup = document.createElement('div');
+                llmGroup.className = 'llm-group';
+
+                // LLM Title
+                const llmTitle = document.createElement('div');
+                llmTitle.className = 'llm-title';
+                // Format LLM name: Replace underscores with spaces and capitalize
+                llmTitle.textContent = `${llm.replace(/_/g, ' ').toUpperCase()}:`;
+                llmGroup.appendChild(llmTitle);
+
+                // Response
+                const response = document.createElement('div');
+                response.className = 'response';
+                response.textContent = responseText;
+                llmGroup.appendChild(response);
+
+                cardBody.appendChild(llmGroup);
+            }
+
+            card.appendChild(cardBody);
+            card.style.display = 'none'; // Initially hidden
+            return card;
+        }
+
+        /**
+         * Function to Fetch All Questions and Create Buttons
+         */
+        function fetchQuestions() {
+            const buttonContainer = document.getElementById('button-container');
+            const initialLoader = document.getElementById('initial-loader');
+            const initialError = document.getElementById('initial-error');
+
+            initialLoader.style.display = 'inline-block'; // Show loader
+
+            // Fetch all JSON files to get questions
+            const fetchPromises = answerFiles.map(file => {
+                return fetch(`answers/${file}`)
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error(`Failed to fetch ${file}: ${response.statusText}`);
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        const question = data.question || 'No question provided';
+                        return { question, file };
+                    })
+                    .catch(error => {
+                        console.error(error);
+                        return { question: null, file, error: error.message };
+                    });
+            });
+
+            Promise.all(fetchPromises)
+                .then(results => {
+                    initialLoader.style.display = 'none'; // Hide loader
+
+                    results.forEach(result => {
+                        if (result.question) {
+                            const button = createQuestionButton(result.question, result.file);
+                            buttonContainer.appendChild(button);
+                        } else {
+                            // Display error message for specific file
+                            const errorMsg = document.createElement('div');
+                            errorMsg.className = 'error-message';
+                            errorMsg.textContent = `Error loading question from ${result.file}: ${result.error}`;
+                            buttonContainer.appendChild(errorMsg);
+                        }
+                    });
+
+                    // Add event listeners to buttons
+                    addButtonEventListeners();
+                })
+                .catch(error => {
+                    initialLoader.style.display = 'none'; // Hide loader
+                    initialError.textContent = `Error fetching questions: ${error.message}`;
+                });
+        }
+
+        /**
+         * Function to Add Event Listeners to All Question Buttons
+         */
+        function addButtonEventListeners() {
+            const buttons = document.querySelectorAll('.question-button');
+
+            buttons.forEach(button => {
+                button.addEventListener('click', () => {
+                    const fileName = button.getAttribute('data-file');
+                    const isActive = button.classList.contains('active');
+
+                    // Remove 'active' class from all buttons and hide all cards
+                    buttons.forEach(btn => {
+                        btn.classList.remove('active');
+                        btn.setAttribute('aria-expanded', 'false');
+                    });
+
+                    const allCards = document.querySelectorAll('.card');
+                    allCards.forEach(card => {
+                        card.style.display = 'none';
+                    });
+
+                    if (!isActive) {
+                        // Activate the clicked button
+                        button.classList.add('active');
+                        button.setAttribute('aria-expanded', 'true');
+
+                        // Display the corresponding answers
+                        displayAnswers(fileName);
+                    }
+                });
+
+                // Enable keyboard activation
+                button.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        button.click();
+                    }
+                });
+            });
+        }
+
+        /**
+         * Function to Fetch and Display Answers for a Given File
+         * @param {String} fileName - The JSON file name to fetch answers from
+         */
+        function displayAnswers(fileName) {
+            const responseContainer = document.getElementById('response-container');
+
+            // Check if the card already exists
+            let existingCard = document.getElementById(`response-${fileName}`);
+            if (existingCard) {
+                existingCard.style.display = 'block';
+                return;
+            }
+
+            // Create a loader
+            const loader = document.createElement('div');
+            loader.className = 'loader';
+            loader.id = `loader-${fileName}`;
+            responseContainer.appendChild(loader);
+
+            // Fetch the JSON file
+            fetch(`answers/${fileName}`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`Failed to fetch ${fileName}: ${response.statusText}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    const question = data.question || 'No question provided';
+                    const answers = data.answers || {};
+
+                    // Create and append the response card
+                    const responseCard = createResponseCard(question, answers, fileName);
+                    responseContainer.appendChild(responseCard);
+
+                    // Remove loader
+                    const loaderElement = document.getElementById(`loader-${fileName}`);
+                    if (loaderElement) {
+                        loaderElement.remove();
+                    }
+                })
+                .catch(error => {
+                    console.error(error);
+                    const errorMessage = document.createElement('div');
+                    errorMessage.className = 'error-message';
+                    errorMessage.textContent = `Error loading ${fileName}: ${error.message}`;
+                    responseContainer.appendChild(errorMessage);
+
+                    // Remove loader
+                    const loaderElement = document.getElementById(`loader-${fileName}`);
+                    if (loaderElement) {
+                        loaderElement.remove();
+                    }
+                });
+        }
+
+        /**
+         * Function to Hide Answers for a Given File
+         * @param {String} fileName - The JSON file name whose answers should be hidden
+         */
+        function hideAnswers(fileName) {
+            const responseCard = document.getElementById(`response-${fileName}`);
+            if (responseCard) {
+                responseCard.style.display = 'none';
+            }
+        }
+
+        // Initialize the UI by fetching all questions and creating buttons
+        document.addEventListener('DOMContentLoaded', () => {
+            fetchQuestions();
+        });
+    </script>
 </body>
 
 </html>
