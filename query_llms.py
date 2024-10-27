@@ -36,7 +36,7 @@ def query_gpt(prompt, model="gpt-4", max_tokens=150, temperature=0.7):
         return "Failed"
 
 # def query_grok(prompt, model="llama-3.1-70b-versatile", temperature=0.0):
-def query_grok(prompt, model_name="llama-3.1-8b-instant", temperature=0.0):
+def query_grok(prompt, model="llama-3.1-8b-instant", temperature=0.0):
 
     grok_api_key = os.getenv('GROK_API_KEY')
     try:
@@ -105,15 +105,15 @@ def get_prompt(df, question):
     """
     return prompt
 
-def answer_question(df, question):
-    save_file = os.path.join(answers_dir, f"{question}.json")
+def answer_question(df, question, question_num):
+    save_file = os.path.join(answers_dir, f"{question_num}.json")
     prompt = get_prompt(df=df, question=question)
-    responses_d = {}
-    responses_d["claude-3-5-sonnet"] = query_anthropic(prompt=prompt)
-    responses_d["gpt-4"] = query_gpt(prompt=prompt, model="gpt-4")
-    responses_d["gpt-4o"] = query_gpt(prompt=prompt, model='gpt-4o')
-    responses_d["llama-3.1-70b-versatile"] = query_grok(prompt=prompt, model="llama-3.1-70b-versatile")
-    responses_d["gemma2-9b-it"] = query_grok(prompt=prompt, model="gemma2-9b-it")
+    responses_d = {"question" : question, "answers" : {}}
+    responses_d["answers"]["claude-3-5-sonnet"] = query_anthropic(prompt=prompt)
+    responses_d["answers"]["gpt-4"] = query_gpt(prompt=prompt, model="gpt-4")
+    responses_d["answers"]["gpt-4o"] = query_gpt(prompt=prompt, model='gpt-4o')
+    responses_d["answers"]["llama-3.1-70b-versatile"] = query_grok(prompt=prompt, model="llama-3.1-70b-versatile")
+    responses_d["answers"]["gemma2-9b-it"] = query_grok(prompt=prompt, model="gemma2-9b-it")
     # responses_d["nvidia/llama-3.1-nemotron-70b-instruct"] = query_nvidia(prompt=prompt)
     with open(save_file, "w") as outfile:
         json.dump(responses_d, outfile)
@@ -122,6 +122,5 @@ if __name__ == "__main__":
     responses = get_responses()
     questions = [col for col in responses.columns if col != 'Timestamp']
 
-    for question in questions:
-        answer_question(responses, question)
-
+    for i, question in enumerate(questions):
+        answer_question(responses, question, question_num=i)
