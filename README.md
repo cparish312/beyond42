@@ -6,8 +6,8 @@
 * [after-survey](https://docs.google.com/forms/d/e/1FAIpQLSevk8fYwRFWMyN0qFpssDXM-02lPkqeX3R2-fV_WjWgYQzsKw/viewform?usp=sf_link)
 
 # Running
-Run: `python query_llms.py` to pull the form responses and pass them to the LLMs (will need a service account credentials file with access to the form sheet)
-Open: `templates/index.html` in a live server environment
+* Run: `python query_llms.py` to pull the form responses and pass them to the LLMs (will need a service account credentials file with access to the form sheet)
+* Open: `templates/index.html` in a live server environment
 
 # How can we trust an AI to navigate subjective questions?
 
