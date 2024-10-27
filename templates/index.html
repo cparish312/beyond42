@@ -9,7 +9,7 @@
     <!-- Navbar -->
     <nav>
         <img src="img.png" alt="Descriptive Alt Text">
-        <h1>Beyond 42 ...</h1>
+        <h1>some profound title to be put here or somewhere ...</h1>
     </nav>
 
     <style>
@@ -252,6 +252,7 @@
     <script>
         // List of JSON filenames in the 'answers' folder
         const answerFiles = [
+            '0.json',
             '1.json',
             '2.json',
             '3.json',
@@ -340,7 +341,7 @@
 
             // Fetch all JSON files to get questions
             const fetchPromises = answerFiles.map(file => {
-                return fetch(`answers/${file}`)
+                return fetch(`../answers/${file}`)
                     .then(response => {
                         if (!response.ok) {
                             throw new Error(`Failed to fetch ${file}: ${response.statusText}`);
