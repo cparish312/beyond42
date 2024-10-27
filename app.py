@@ -4,31 +4,16 @@ from flask import Flask, render_template
 import pandas as pd
 from query_llms import query_gpt, query_grok
 from datetime import datetime
+import gspread
+from google.oauth2.service_account import Credentials
 
 app = Flask(__name__)
+
 
 @app.route('/test')
 def test():
     # Create a fake DataFrame
-    data = {
-        'Timestamp': [
-            datetime(2024, 10, 26, 14, 54, 14),
-            datetime(2024, 10, 26, 15, 1, 56)
-        ],
-        'What is the meaning of life?': [
-            '42',
-            'To find connection'
-        ],
-        'What happens after death?': [
-            'Nothing',
-            'We wake up in a bio vat'
-        ],
-        'What does fully embracing life mean?': [
-            'Maximizing the time in flow state',
-            'You maximize your time doing the things you love'
-        ]
-    }
-    df = pd.DataFrame(data)
+    df = get_responses()
 
     # Define questions (columns except 'Timestamp')
     questions = [col for col in df.columns if col != 'Timestamp']
