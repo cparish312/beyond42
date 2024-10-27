@@ -100,8 +100,9 @@ def get_prompt(df, question):
         prompt += f"Answer {i}:" + str(answer) + "\n"
 
     prompt += """Rules:
-    - Only respond with the asnwer and do not include the answer number
+    - Only respond with the answer and do not include the answer number
     - Do not give a response or any other text than the best answer
+    - Ensure the response given is one of the answers.
     """
     return prompt
 
